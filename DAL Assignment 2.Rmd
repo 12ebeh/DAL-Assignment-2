@@ -1,0 +1,95 @@
+---
+title: "DAL Assignment 2"
+author: "Heber Ng"
+date: "2018年10月16日"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Analyics Lab Assignment 2
+
+# Line of Analysis (Remove)
+
+1) Segregate the projects based on similar features
+2) Segregate the donors
+3) Check the donor's donation distribution to each cluster of project for each cluster of doners
+
+## Objective
+
+The objective of the analysis is to find if there are different clusters of donors in the dataset and the kind of projects that will appeal to them. The analysis will also examine if the presentation of the projects matters to different kind of donors.
+
+To achieve the analysis, both the donors and projects are subjected to clustering analysis to group both sides according to common features. The list of features are curated based on the website interface on [DonorsChoose's](https://www.donorschoose.org/donors/search.html) project search page These features differs between the 2 and are listed below:
+
+Projects Features:
+- Location of the School
+- Is the school a rural school? (School Metro Type == rural)
+- Does more than half of the students of the school comes from low income families (School Percentage Free Lunch > 50)
+- Has the school successfully funded a project before
+- Gender of the Teacher proposing the project (May not be feasible based on Teacher Prefix alone as the teacher's profile picture, or the lack of, is shown on the page itself)
+- Number of years in experience of the Teacher in initiating projects
+- Has the teacher successfully funded a project before
+- Project Theme (Sentiment/Text analysis)
+- Project Type (Teacher/Student Led, Professional Development)
+- Project Grade Level Category
+- Project Subject Category Tree (bitflag according to "Applied Learning", "Health & Sports", "History & Civics", "Literacy & Language", "Math & Science", "Music & The Arts", "Special Needs", "Warmth, Care & Hunger")
+- Project Subject Subcategory Tree (May not be used as the subcategory is now shown on the inteface)
+- Project Resource Category (a.k.a. what was requested)
+- Project Cost (Classified according to the )
+
+Projects clustering involves identifying similar projects based on location, school type, project proposal, project type, resource required and cost. Each project are assigned a group value to be used in Donor analysis.
+
+Donors Features:
+- The group value of the project that the donor donates to
+- Donor's Loacation
+- Donor's proximity to the School (Same State/Different State or more?)
+- Is Donor a teacher?
+- Does Donor include optional donation (15% to organization)
+- Amount donated on each donation
+- Sense of urgency (How close is the donation date to the expiry date of the project?)
+- Does the project have pre-existing donations at the point when the donor donated? 
+
+## Data Cleaning
+
+### Donor
+
+- Perfomed missing data pattern on the table. Found 1909543 complete observations, 33037 observations with missing Donor City values and 180060 observations with missing Donor City and Donor Zip values.
+- Observations with missing Donor City are not really much of a concern as the first 3 numbers of the zip code will suffice in identify the proximity of the donor to the proximity of the school. Distribution analysis performed on the Donor State and Donor Is Teacher varialbe shows that these observations are spreaded across different states and teacher status, indicating that the missing value may not be caused by data malfunctions. Therefore those observations are included in the clean dataset
+- Observations with both missing Donor City and Donor Zip are likewise subjected to further distribution analysis: the result reveals that roughly half of these observations have a Donor State value of "other", implying that these donors originated from out of United States. Such observations should be considered valid as these donors will not have a valid zip code. Observations with a non "other" Donor State value but with missing Donor Zip values are flagged out using a formula column Incomplete Location Info.
+- Flagging out the observations with incomplete location info is chosen over hiding and exluding action because the data given exists in a relational database form. Future exploratory analysis may require joining of the Donors table with other tables, in which the hidden and excluded rows may cause instances of missing data in the joined table
+- Summary statistics and distribtuion analysis on the Donor State, Donor Is Teacher and Donor Zip variable of the complete observations reveals no further abnormalies.
+
+### Donations
+
+- Performed missing data pattern on the table and found no observations with missing values in any variables
+- Gathered summary statistics Project ID, Donor ID, Donation Included Optional Donation, Donation Amount and Donation Received Date. Summary statistics showed that there are 2024554 unique donors contributing 4687844 donations to 901965 unique projects. The donation amount ranges from 0.01 dollars to 60000 dollars. The donation recieved date spans from 2012/10/08 to 2018/05/09.
+- The extreme values of donation amount warrants further investigation. Using distribution analysis on the Donation Amount reveals that the 0.5% qunatile and 99.5% quantile of the Donation Amount are 1 and 750 respectively. In total there are 377031 observations that are within either quantile, with Donation Amount <=1 taking up the majority at 354405 observations.
+- The 60000 Donation Amount value comes from a single Donation observation made in 2013/04/25. While this is not invalid data, it should be noted as a outlier as the next closest value comes in at 31856.6, which is slightly larger than half of the maximum value.
+- A closer examination on donation amounts lesser than 1 dollar shows that there are 350 such observation. The distribution of these observations evens out across the dollar spectrum, suggesting that such behavior is not abnormal.
+- With no abnormalies found in the data, all observations are included in the clean dataset.
+
+### Projects.csv
+
+TODO: Need to redo this part, keep essay, short description for text analysis, ignore project status,
+
+- Hide and excluded Project Title, Essay, Short Description and Need Statement. While they may be useful in sentimental analysis, the primary focus is to discover donor clusters.
+
+- Performed missing data pattern analysis on the remaining variables, found 826739 observations will no missing values, 283227 observations with missing Project Fully Funded Date values, 14 missing Project Expiry Date and Project Fully Funded Date values, 7 missing Project Resource Category values, and 31 observations missing values in 3 or more variables.
+
+- Of the 283227 obervations with missing Project Fully Funded Date, 241367 have Project Current Status value of Expired while the rest have a value of Live. As the projects status justifies the reason for no values in Project Fully Funded Date, these observations are considered valid for analysis.
+
+- The 14 observations with missing Project Expiry Date and Project Fully Funded Date values are marked as Expired in the Project Current Status. 7 observations with missing Project Resource Category are marked as Fully Funded. Should these columns be deleted?
+
+- The remaining 31 observations with 3 or more variables with missing values are hidden and excluded from the data table.
+
+### Teachers
+
+- Missing data pattern analysis reveals that there are 28 observations without Teacher Prefix values. These observations are assigned the value of "Unknown" as it will be inaccurate to assume the gender of the teacher when the project is proposed.
+
+### Resources
+
+- Missing data pattern analysis reveals 7127980 observations with complete variables, 57678 observations missing Resource Vendor Name, 24215 missing Resource Quantity, Resource Unit Price and Resource Vendor Name, 474 observations missing Resource Name, 82 observations with missing values in 4 variables and 19 observations with missing values in 2 to 3 columns.
+
+- Of the 24215 observations with missing values in 3 variables, 21233 observations have the Resource Name value of "trip"", 2978 have value of "visitor" and 4 have value of "others". 3 of the "others" requires cheer uniforms, premium subscription to a news channel and academic achievement test respectively based on the Project Need Statement in the Projects table. The remain entry have no matching observation in the Projects table when matchin Project ID. Hence, that was hidden/excluded. 
