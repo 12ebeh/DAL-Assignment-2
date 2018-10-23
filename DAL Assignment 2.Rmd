@@ -74,15 +74,19 @@ Donors Features:
 
 TODO: Need to redo this part, keep essay, short description for text analysis, ignore project status,
 
-- Hide and excluded Project Title, Essay, Short Description and Need Statement. While they may be useful in sentimental analysis, the primary focus is to discover donor clusters.
+- Excluded Project Title, Essay, Short Description and Need Statement. While they may be useful in sentimental analysis, the primary focus is to discover donor clusters and the type of projects they donate to using quantitative data. However, the data is not hidden as they are still useful in getting context
 
-- Performed missing data pattern analysis on the remaining variables, found 826739 observations will no missing values, 283227 observations with missing Project Fully Funded Date values, 14 missing Project Expiry Date and Project Fully Funded Date values, 7 missing Project Resource Category values, and 31 observations missing values in 3 or more variables.
+- Performed missing data pattern analysis on the remaining variables, found 826739 observations will no missing values, 283227 observations with missing Project Fully Funded Date values, 14 missing Project Expiry Date and Project Fully Funded Date values, 7 missing Project Resource Category values, and 31 observations missing values in 3 or more variables. 
 
 - Of the 283227 obervations with missing Project Fully Funded Date, 241367 have Project Current Status value of Expired while the rest have a value of Live. As the projects status justifies the reason for no values in Project Fully Funded Date, these observations are considered valid for analysis.
 
-- The 14 observations with missing Project Expiry Date and Project Fully Funded Date values are marked as Expired in the Project Current Status. 7 observations with missing Project Resource Category are marked as Fully Funded. Should these columns be deleted?
+- 7 observations with missing Project Resource Category are marked as Fully Funded. Joining these observation with the Resource table shows that all 7 projects have valid Resource observations. These observations are assigned a new "Uncategorized" value to the Project Resource Category variable, deplicating them as valid Project observations but with no Project Resource Category values.
 
-- The remaining 31 observations with 3 or more variables with missing values are hidden and excluded from the data table.
+- The 14 observations with missing Project Expiry Date and Project Fully Funded Date values are marked as Expired in the Project Current Status. 
+
+- There are 29 observations missing Project Subject Category Tree, Project Subject Subcategory Tree and Project Resource Category values. Of which, 11 of those observations have a Current Project Status as expired and does not have a Project Fully Funded Date value. Joining these observations with the Donations table shows that 19 of the Project actually received donations, suggesting that these Project observations are valid data. To handle the missing values in the 3 variables, these observations are assigned a value of "Uncategorized" to those variables to indicate that they have missing data.
+
+- There are 2 observations that are missing 9 values in 9 variables from Project Subject Category Tree onwards. A closer examination suggest that they belong to the same observation: The first observation contains an essay requesting for opportunites for students to do hands-on enginnering, while the second observation contain seemingly misplaced values such as "Math & Science", "Applied Sciences, Mathematics" etc. Likewise, the project resource required has "thames & kosmos robotics: smart machines science kit" recorded in the Resource Item Name variable. The fact that these 2 observation rows are next to each other in the table supports the hypothesis. Due to these reasons, the 2 observations are joined together to form 1 complete obersvation.
 
 ### Teachers
 
